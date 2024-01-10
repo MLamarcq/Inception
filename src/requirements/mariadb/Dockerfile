@@ -13,8 +13,6 @@ RUN addgroup --system --gid $APP_GID $APP_USER \
 
 WORKDIR /app
 
-USER ${APP_USER}:${APP_USER}
-
 RUN apt-get update -y \
 	&& apt-get upgrade -y \
 	&& apt-get install -y mariadb-server mariadb-client \
@@ -35,4 +33,4 @@ EXPOSE 3306
 COPY ./tools/script.sh ./
 RUN chmod +x ./script.sh
 
-CMD ["bash", "script.sh"]
+ENTRYPOINT ["bash", "script.sh"]

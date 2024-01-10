@@ -1,0 +1,36 @@
+version : '3'
+
+services :
+
+	mariadb :
+		container_name : mariadb
+		build :
+			context: /requierements/mariadb
+			dockerfile : Dockerfile
+		volumes:
+			- mariadb:/var/lib/mysql
+		expose:
+			- "3306"
+		networks:
+			-inception
+		restart: on-failure
+		env_file: .env
+		healthcheck:
+			test: mysqladmin ping --host=localhost -p${SQL_ROOT_PASSWORD}
+			interval: 5s
+			timeout: 1s
+			retries: 20
+			start_period: 5s
+
+volumes:
+		mariadb:
+			driver: local
+			driver_opts:
+			type: 'none'
+			o: 'bind'
+			device: /home/${USER}/data
+
+
+networks:
+				inception:
+					name: inception

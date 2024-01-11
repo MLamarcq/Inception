@@ -4,20 +4,16 @@ LABEL version="v1.0.0"
 LABEL descritpion="Data base mariaDB"
 LABEL owner="mlamarcq"
 
-ARG APP_UID=1000
-ARG APP_GID=1000
-ARG APP_USER=mlamarcq
-
-RUN addgroup --system --gid $APP_GID $APP_USER \
-	&& adduser --system --uid $APP_UID --gid $APP_GID $APP_USER
-
 WORKDIR /app
 
 RUN apt-get update -y \
 	&& apt-get upgrade -y \
 	&& apt-get install -y mariadb-server mariadb-client \
+	&& apt-get install -y procps \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
+
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
 RUN mkdir -p /var/run/mysqld \
 	&& mkdir -p /var/lib/mysql \
@@ -26,11 +22,6 @@ RUN mkdir -p /var/run/mysqld \
 	&& chown mysql:mysql /var/lib/mysql/ \
 	&& chmod -R 755 /var/lib/mysql/
 
-COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
-
 EXPOSE 3306
 
-COPY ./tools/script.sh ./
-RUN chmod +x ./script.sh
-
-ENTRYPOINT ["bash", "script.sh"]
+CMD ["bash", "./tools/script.sh"]

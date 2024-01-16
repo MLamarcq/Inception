@@ -39,5 +39,8 @@ EXPOSE 9000
 # Copie du fichier de configuration www.conf dans le répertoire /etc/php/7.4/fpm/pool.d/
 COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
+COPY ./tools/config.sh ./
+RUN chmod +x ./config.sh
+
 # Définition du point d'entrée pour l'exécution du script config.sh
-CMD ["bash", "./tools/config.sh"]
+ENTRYPOINT ["bash", "config.sh"]

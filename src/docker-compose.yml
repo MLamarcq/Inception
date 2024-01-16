@@ -2,6 +2,7 @@ version: '3'
 
 services:
   mariadb:
+    image: mariadb
     container_name: mariadb
     build:
       context: ./requirements/mariadb
@@ -12,13 +13,14 @@ services:
       - "3306"
     networks:
       - inception
-    restart: on-failure
+    restart: always
     env_file: .env
 
   nginx:
+    image : nginx
     container_name: nginx
     build:
-      context: ./requierements/nginx
+      context: ./requirements/NGINX
       dockerfile : Dockerfile
     volumes:
       - wordpress:/var/www/html/wordpress
@@ -28,10 +30,11 @@ services:
       - "443:443"
     networks:
       - inception
-    restart: on-failure
+    restart: always
     env_file: .env
 
   wordpress:
+    image : wordpress
     container_name : wordpress
     build :
       context: ./requirements/wordpress
@@ -42,18 +45,20 @@ services:
       - "9000"
     networks:
       - inception
-    restart: on-failure
+    restart: always
     env_file: .env
     depends_on :
       - mariadb
 
 volumes:
+  
   mariadb:
     driver: local
     driver_opts:
       type: 'none'
       o: 'bind'
       device: /home/mael/data/mariadb
+  
   wordpress:
     driver: local
     driver_opts:

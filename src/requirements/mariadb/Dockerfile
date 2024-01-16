@@ -9,7 +9,6 @@ WORKDIR /app
 RUN apt-get update -y \
 	&& apt-get upgrade -y \
 	&& apt-get install -y mariadb-server mariadb-client \
-	&& apt-get install -y procps \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -22,6 +21,9 @@ RUN mkdir -p /var/run/mysqld \
 	&& chown mysql:mysql /var/lib/mysql/ \
 	&& chmod -R 755 /var/lib/mysql/
 
+COPY ./tools/script.sh ./
+RUN chmod +x ./script.sh
+
 EXPOSE 3306
 
-CMD ["bash", "./tools/script.sh"]
+ENTRYPOINT ["bash", "script.sh"]

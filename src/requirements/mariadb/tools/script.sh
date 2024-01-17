@@ -1,85 +1,39 @@
-# echo 'Starting mariadb...'
-# service mariadb start;
-
-# sleep 1
-
-# mariadb -e root -p$SQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;" || { echo 'Error: fail to create database' >&2; exit 1; }
-
-# echo 'Database creation successfull'
-
-
-# mariadb -e root -p$SQL_ROOT_PASSWORD -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';" || { echo 'Error: fail to create user' >&2; exit 1; }
-
-# echo 'User created with success'
-
-
-# mariadb -e root -p$SQL_ROOT_PASSWORD -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';" || { echo 'Error: fail to grants all privileges on database for user' >&2; exit 1; }
-
-# echo "User ${SQL_USER} has now all privileges"
-
-
-# mariadb -e root -p$SQL_ROOT_PASSWORD -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';" || { echo 'Error: fail set new password for root' >&2; exit 1; }
-
-# echo 'New password for root set with success'
-
-# mariadb -e root -p$SQL_ROOT_PASSWORD -e "FLUSH PRIVILEGES;" || { echo 'Error: fail to actualise privileges' >&2; exit 1; }
-
-# systemctl stop mariadb
-
-# exec mysqld_safe
-
-# echo 'Starting mariadb...'
-# service mariadb start;
-
-# sleep 1
-
-# mariadb -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;" || { echo 'Error: fail to create database' >&2; exit 1; }
-
-# echo 'Database creation successfull'
-
-# mariadb -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';" || { echo 'Error: fail to create user' >&2; exit 1; }
-
-# echo 'User created with success'
-
-# mariadb -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';" || { echo 'Error: fail to grants all privileges on database for user' >&2; exit 1; }
-
-# echo "User ${SQL_USER} has now all privileges"
-
-# mariadb -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';" || { echo 'Error: fail set new password for root' >&2; exit 1; }
-
-# echo 'New password for root set with success'
-
-# mariadb -e "FLUSH PRIVILEGES;" || { echo 'Error: fail to actualise privileges' >&2; exit 1; }
-
-# mysqladmin -u root -p${SQL_ROOT_PASSWORD} shutdown
-
-
-# exec mysqld_safe
-
-#!/bin/bash
-
-echo 'Starting mariadb...'
+#definition of log function that print a message on the standard output with date and hour of the command execution
+log()
+{
+	echo "$(date +"%Y-%m-%d %H:%M:%S") - $1"
+}
+#lauch mariadb by use mysqld function
+log 'Starting mariadb...'
 mysqld &
+
+#the script is waiting 1 second before starting in order to let a laps of time for mariadb to start correctly
 sleep 1
 
-mysql -u root -p${SQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;" || { echo 'Error: fail to create database' >&2; exit 1; }
+#check if database exist ; else it creates it with the database name referenced in .env file ; exit the program if fail
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;" || { log 'Error: fail to create database' >&2; exit 1; }
 
-echo 'Database creation successful'
+log 'Database creation successful'
 
-mysql -u root -p${SQL_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';" || { echo 'Error: fail to create user' >&2; exit 1; }
+#check if database user exist ; else it creates it with the user name referenced in .env file ; exit the program if fail
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';" || { log 'Error: fail to create user' >&2; exit 1; }
 
-echo 'User created successfully'
+log 'User created successfully'
 
-mysql -u root -p${SQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';" || { echo 'Error: fail to grant all privileges on database for user' >&2; exit 1; }
+#gives all the privileges to the user in the database and set its password, both referenced in .env file ; exit the program if fail
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';" || { log 'Error: fail to grant all privileges on database for user' >&2; exit 1; }
 
-echo "User ${SQL_USER} now has all privileges"
+log "User ${SQL_USER} now has all privileges"
 
-mysql -u root -p${SQL_ROOT_PASSWORD} -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';" || { echo 'Error: fail to set new password for root' >&2; exit 1; }
+#set a new password for root in the database referenced in .env file ; exit the program if fail
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';" || { log 'Error: fail to set new password for root' >&2; exit 1; }
 
-echo 'New password for root set successfully'
+log 'New password for root set successfully'
 
+#stops mariadb for a safer execution
 mysqladmin -u root -p${SQL_ROOT_PASSWORD} shutdown
 
+#execute mariadb in a safe way
 exec mysqld_safe
 
 
